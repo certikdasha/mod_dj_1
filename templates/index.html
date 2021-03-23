@@ -1,26 +1,81 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div>
-    <a href="{% url 'logout' %}">Logout</a>
-</div>
-    <div>index</div>
-    <div>
-        {% for obj in object_list %}
-            <div class="brd">
-                <p>{{ obj.name }}</p>
-                <p>{{ obj.text }}</p>
-                <p>Price: {{ obj.price }}, in stock: {{ obj.stock }}</p>
 
-            </div>
-        {% endfor %}
+    <div>
+        <a href="{% url 'logout' %}">Logout</a>
     </div>
 
-    <form method="post" action="{% url 'product-create' %}">
-        {% csrf_token %}
-        {{ create_form }}
-        <input type="submit" value="Create">
-    </form>
+    <div>
 
+        {% if user.is_staff == True %}
+
+            <i style="background-color: #bbbbbf">Hi, {{ user }}</i>
+            <a href="{% url 'refund' %}">Refunds</a>
+
+            <form method="post" action="{% url 'product-create' %}">
+                {% csrf_token %}
+                {{ create_form }}
+                <input type="submit" value="Create">
+            </form>
+
+            {% for obj in object_list %}
+                <div class="adm">
+
+                    <b>{{ obj.name }}</b>
+                    <p>{{ obj.text }}</p>
+                    <p>Price: {{ obj.price }}, in stock: {{ obj.stock }}</p>
+
+                    <form method="post" action="{% url 'product-delete' obj.pk %}">
+                        {% csrf_token %}
+                        <input type="submit" value="Delete">
+                    </form>
+                    <a href="product/update/{{ obj.pk }}">Update</a>
+
+                </div>
+            {% endfor %}
+
+        {% else %}
+
+            <i style="background-color: bisque">Hi {{ user }}, you have {{ user.money }}</i><br>
+            <a href="{% url 'order-list' %}">Your order</a>
+
+            {% for obj in object_list %}
+                <div class="brd">
+                    <b>{{ obj.name }}</b>
+                    <p>{{ obj.text }}</p>
+                    <p>Price: {{ obj.price }}, in stock: {{ obj.stock }}</p>
+
+                    <form method="post" action="{% url 'product-buy' obj.pk %}">
+                        {% csrf_token %}
+                        {{ order_form }}
+                        <input type="submit" value="Buy">
+                    </form>
+                </div>
+            {% endfor %}
+
+        {% endif %}
+
+        <div class="pagination">
+            <span class="step-links">
+
+                {% if page_obj.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">next</a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+
+            </span>
+        </div>
+
+    </div>
 
 {% endblock %}

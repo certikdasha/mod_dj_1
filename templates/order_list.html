@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div>
+        <a href="{% url 'logout' %}">Logout</a><br>
+        <a href="{% url 'index' %}">Back</a>
+    </div>
+    <div>
+        {% for obj in object_list %}
+            {% if obj.user == user %}
+                <div class="brd">
+
+                    <b>{{ obj.product.name }}</b>
+                    <p>{{ obj.num }}</p>
+                    <form method="post" action="{% url 'refund-create' obj.pk %}">
+                        {% csrf_token %}
+                        {{ refund_form }}
+                        <input type="submit" value="Вернуть">
+                    </form>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+{% endblock %}
