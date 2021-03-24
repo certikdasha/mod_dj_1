@@ -3,7 +3,7 @@ from django.db import models
 
 
 class CustomUser(AbstractUser):
-    money = models.PositiveIntegerField(default=0)
+    money = models.DecimalField(max_digits=9, decimal_places=2, default=10000, verbose_name='Money')
 
 
 class Product(models.Model):
@@ -27,6 +27,10 @@ class Order(models.Model):
 
 
 class Refund(models.Model):
+
     ref = models.ForeignKey(Order, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at', ]
 

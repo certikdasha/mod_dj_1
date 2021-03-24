@@ -26,10 +26,6 @@
                     <p>{{ obj.text }}</p>
                     <p>Price: {{ obj.price }}, in stock: {{ obj.stock }}</p>
 
-                    <form method="post" action="{% url 'product-delete' obj.pk %}">
-                        {% csrf_token %}
-                        <input type="submit" value="Delete">
-                    </form>
                     <a href="product/update/{{ obj.pk }}">Update</a>
 
                 </div>
