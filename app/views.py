@@ -151,23 +151,23 @@ class RefundRejectView(LoginRequiredMixin, DeleteView):
         if self.request.POST['a'] == 'reject':
             Order.objects.get(id=order_id).delete()
         else:
+            product_id = Order.objects.get(id=order_id).product_id
+            product_price = Product.objects.get(id=product_id).price
+            order_price = product_price * Order.objects.get(id=order_id).num
+            user_id = Order.objects.get(id=order_id).user_id
+            money = CustomUser.objects.get(id=user_id).money + order_price
+            sum_product = Order.objects.get(id=order_id).num + Product.objects.get(id=product_id).stock
+
+            user = CustomUser.objects.get(id=user_id)
+            user.money = money
+
+            product = Product.objects.get(id=product_id)
+            product.stock = sum_product
+
             with transaction.atomic():
-
-                product_id = Order.objects.get(id=order_id).product_id
-                product_price = Product.objects.get(id=product_id).price
-                order_price = product_price * Order.objects.get(id=order_id).num
-                user_id = Order.objects.get(id=order_id).user_id
-                money = CustomUser.objects.get(id=user_id).money + order_price
-                user = CustomUser.objects.get(id=user_id)
-                user.money = money
-
-                sum_product = Order.objects.get(id=order_id).num + Product.objects.get(id=product_id).stock
-                product = Product.objects.get(id=product_id)
-                product.stock = sum_product
-
                 user.save()
                 product.save()
-            Order.objects.get(id=order_id).delete()
+                Order.objects.get(id=order_id).delete()
+                self.object.delete()
 
-        self.object.delete()
         return HttpResponseRedirect(success_url)
